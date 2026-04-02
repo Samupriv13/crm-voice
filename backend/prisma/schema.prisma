@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  plan      String   @default("free")
+  createdAt DateTime @default(now())
+  users     User[]
+  clients   Client[]
+  deals     Deal[]
+  tasks     Task[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("agent") // admin | agent
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+  tasks     Task[]
+  notes     Note[]
+}
+
+model Client {
+  id           String        @id @default(uuid())
+  name         String
+  email        String?
+  phone        String?
+  company      String?
+  status       String        @default("lead") // lead | active | inactive
+  companyId    String
+  tenant       Company       @relation(fields: [companyId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deals        Deal[]
+  notes        Note[]
+  interactions Interaction[]
+}
+
+model Deal {
+  id        String   @id @default(uuid())
+  title     String
+  value     Float    @default(0)
+  stage     String   @default("lead") // lead | contact | proposal | negotiation | closed_won | closed_lost
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      String    @default("pending") // pending | in_progress | done
+  priority    String    @default("medium") // low | medium | high
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  content   String
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Interaction {
+  id        String   @id @default(uuid())
+  type      String   // call | email | whatsapp | meeting
+  summary   String
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  createdAt DateTime @default(now())
+}

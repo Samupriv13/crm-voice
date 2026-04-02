@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables — NUNCA subir al repo
+.env
+.env.local
+.env.production
+**/.env
+**/.env.local
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Build
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+backend/prisma/migrations/dev/
+
+# Uploads (local dev only)
+uploads/
+/tmp/
