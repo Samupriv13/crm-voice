@@ -10,7 +10,7 @@ router.use(authenticate)
 
 // Store in memory — no disk dependency, works on any cloud provider
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } })
-let openai: any = null
+let openai = null
 const getOpenAI = () => {
   if (!openai) openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   return openai
