@@ -10,7 +10,11 @@ router.use(authenticate)
 
 // Store in memory — no disk dependency, works on any cloud provider
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } })
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+let openai: any = null
+const getOpenAI = () => {
+  if (!openai) openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  return openai
+}
 
 // Transcribe audio with Whisper (stream from memory buffer, no /tmp needed)
 router.post('/transcribe', upload.single('audio'), async (req, res) => {
@@ -21,7 +25,7 @@ router.post('/transcribe', upload.single('audio'), async (req, res) => {
     const readable = Readable.from(req.file.buffer)
     readable.path = 'audio.webm' // SDK needs a filename to detect format
 
-    const transcription = await openai.audio.transcriptions.create({
+    const transcription = await getOpenAI().audio.transcriptions.create({
       file: readable,
       model: 'whisper-1',
       language: 'es'
@@ -66,7 +70,7 @@ Acciones disponibles:
 
 Responde SOLO con JSON válido. Incluye también un campo "response" con la respuesta en español natural para el usuario.`
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
